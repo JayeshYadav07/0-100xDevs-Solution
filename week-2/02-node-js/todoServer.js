@@ -42,52 +42,53 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 const app = express();
 let count = 0;
 let todos = [];
 app.use(bodyParser.json());
-
+app.use(cors());
 app.get("/todos", (req, res) => {
-  res.status(200).json(todos);
+	res.status(200).json(todos);
 });
 
 app.post("/todos", (req, res) => {
-  let data = { id: ++count, ...req.body };
-  todos.push(data);
-  res.status(201).send({ id: count });
+	let data = { id: ++count, ...req.body };
+	todos.push(data);
+	res.status(201).send({ id: count });
 });
 app.delete("/todos/:id", (req, res) => {
-  let id = req.params.id;
-  let flag = true;
-  let filterData = todos.filter((item) => {
-    if (item.id != id) return true;
-    else {
-      flag = false;
-      return false;
-    }
-  });
-  todos = filterData;
-  if (flag) res.status(404).send({ message: `${id} Not Found!` });
-  else res.status(200).send(todos);
+	let id = req.params.id;
+	let flag = true;
+	let filterData = todos.filter((item) => {
+		if (item.id != id) return true;
+		else {
+			flag = false;
+			return false;
+		}
+	});
+	todos = filterData;
+	if (flag) res.status(404).send({ message: `${id} Not Found!` });
+	else res.status(200).send(todos);
 });
 
 app.put("/todos/:id", (req, res) => {
-  let id = parseInt(req.params.id);
-  let todoIndex = todos.findIndex((item) => item.id === id);
-  if (todoIndex === -1) res.status(404).send();
-  else {
-    todos[id] = { id: todoIndex, ...req.body };
-    res.status(200).json(todos[id]);
-  }
+	let id = parseInt(req.params.id);
+	let todoIndex = todos.findIndex((item) => item.id === id);
+	if (todoIndex === -1) res.status(404).send();
+	else {
+		todos[id] = { id: todoIndex, ...req.body };
+		res.status(200).json(todos[id]);
+	}
 });
 app.get("/todos/:id", (req, res) => {
-  const todo = todos.find((t) => t.id === parseInt(req.params.id));
-  if (!todo) {
-    res.status(404).send();
-  } else {
-    res.json(todo);
-  }
+	const todo = todos.find((t) => t.id === parseInt(req.params.id));
+	if (!todo) {
+		res.status(404).send();
+	} else {
+		res.json(todo);
+	}
 });
 
-app.listen(3100);
+app.listen(8080);
 module.exports = app;
