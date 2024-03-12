@@ -118,3 +118,4 @@ const ShowAlert = memo(function ShowAlert() {
 ```
 
 ## Output :
+![Screenshot 2024-03-03 101821](https://github.com/JayeshYadav07/0-100xDevs-Solution/assets/76944410/4b80e794-bf5e-477d-8107-54ad020eb29c)
