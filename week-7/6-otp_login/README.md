@@ -130,3 +130,6 @@ export default function VerifyPage() {
 	);
 }
 ```
+![image](https://github.com/JayeshYadav07/0-100xDevs-Solution/assets/76944410/94518174-94c0-45c8-abae-e628552b6321)
+
+![image](https://github.com/JayeshYadav07/0-100xDevs-Solution/assets/76944410/b1d1d57c-c02e-433e-8e5a-56dee72f0f6d)
