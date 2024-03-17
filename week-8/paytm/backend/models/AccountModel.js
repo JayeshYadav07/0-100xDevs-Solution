@@ -9,6 +9,6 @@ const AccountSchema = new mongoose.Schema({
 	balance: Number,
 });
 
-const AccountModel = mongoose.model("User", AccountSchema);
+const AccountModel = mongoose.model("Account", AccountSchema);
 
 module.exports = AccountModel;

@@ -1,6 +1,7 @@
 const express = require("express");
 const z = require("zod");
 const UserModel = require("../models/UserModel");
+const AccountModel = require("../models/AccountModel");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -45,13 +46,17 @@ router.post("/signup", async (req, res) => {
 
 	const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
-	const newUser = new UserModel({
+	const newUser = await UserModel.create({
 		username,
 		firstName,
 		lastName,
 		password: hashedPassword,
 	});
-	await newUser.save();
+
+	const account = await AccountModel.create({
+		userId: newUser._id,
+		balance: Math.round(Math.random() * 10000) + 1,
+	});
 
 	res.status(201).send({ msg: "User saved successfully", userId: newUser._id });
 });
