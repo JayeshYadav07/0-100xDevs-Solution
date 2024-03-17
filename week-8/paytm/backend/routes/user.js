@@ -2,9 +2,10 @@ const express = require("express");
 const z = require("zod");
 const UserModel = require("../models/UserModel");
 const router = express.Router();
-var jwt = require("jsonwebtoken");
-
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const authMiddleware = require("../middleware/authMiddleware");
+
 const saltRounds = 10;
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -84,6 +85,40 @@ router.post("/signin", async (req, res) => {
 	const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1d" });
 
 	res.status(200).send({ msg: "User logged in successfully", token: token });
+});
+
+// Method: PUT
+// Route: /api/v1/user
+// Body:
+// {
+// 	password: "new_password",
+// 	firstName: "updated_first_name",
+// 	lastName: "updated_first_name",
+// }
+const updateBody = z.object({
+	password: z.string().optional(),
+	firstName: z.string().optional(),
+	lastName: z.string().optional(),
+});
+router.put("/", authMiddleware, async (req, res) => {
+	const { success } = updateBody.safeParse(req.body);
+	if (!success) return res.status(400).send({ msg: "Invalid Data" });
+
+	if (req.body.password) {
+		const hashedPassword = bcrypt.hashSync(req.body.password, saltRounds);
+		req.body.password = hashedPassword;
+	}
+	const userId = req.userId;
+	try {
+		await UserModel.findByIdAndUpdate(userId, req.body);
+		res.json({
+			message: "Updated successfully",
+		});
+	} catch (error) {
+		res.status(500).send({
+			message: error.message,
+		});
+	}
 });
 
 module.exports = router;
