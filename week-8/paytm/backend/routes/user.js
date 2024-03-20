@@ -126,4 +126,36 @@ router.put("/", authMiddleware, async (req, res) => {
 	}
 });
 
+// Method: GET
+// Route: /api/v1/user/bulk
+// Query Parameter: ?filter=harkirat
+// Response:
+// Status code - 200
+// {
+// 	users: [{
+// 		firstName: "",
+// 		lastName: "",
+// 		_id: "id of the user"
+// 	}]
+// }
+
+router.get("/bulk", async (req, res) => {
+	const filter = req.query.filter || " ";
+	const users = await UserModel.find({
+		$or: [
+			{ firstName: { $regex: filter, $options: "i" } },
+			{ lastName: { $regex: filter, $options: "i" } },
+		],
+	});
+	res.send({
+		user: users.map((user) => {
+			return {
+				username: user.username,
+				firstName: user.firstName,
+				lastName: user.lastName,
+				_id: user._id,
+			};
+		}),
+	});
+});
 module.exports = router;
