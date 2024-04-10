@@ -11,7 +11,7 @@ const saltRounds = 10;
 const JWT_SECRET = process.env.JWT_SECRET;
 
 router.get("/", (req, res) => {
-	res.send("This is the user request");
+    res.send("This is the user request");
 });
 
 //1. Signup
@@ -26,39 +26,42 @@ router.get("/", (req, res) => {
 // }
 
 const signupBody = z.object({
-	username: z.string().email(),
-	firstName: z.string(),
-	lastName: z.string(),
-	password: z.string(),
+    username: z.string().email(),
+    firstName: z.string(),
+    lastName: z.string(),
+    password: z.string(),
 });
 router.post("/signup", async (req, res) => {
-	const { username, firstName, lastName, password } = req.body;
+    const { username, firstName, lastName, password } = req.body;
 
-	const { success } = signupBody.safeParse(req.body);
-	if (!success) return res.status(400).send({ msg: "Invalid Data" });
+    const { success } = signupBody.safeParse(req.body);
+    if (!success) return res.status(400).send({ msg: "Invalid Data" });
 
-	const existingUser = await UserModel.findOne({
-		username: username,
-	});
-	if (existingUser) {
-		return res.status(409).send({ msg: "username already present" });
-	}
+    const existingUser = await UserModel.findOne({
+        username: username,
+    });
+    if (existingUser) {
+        return res.status(409).send({ msg: "username already present" });
+    }
 
-	const hashedPassword = bcrypt.hashSync(password, saltRounds);
+    const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
-	const newUser = await UserModel.create({
-		username,
-		firstName,
-		lastName,
-		password: hashedPassword,
-	});
+    const newUser = await UserModel.create({
+        username,
+        firstName,
+        lastName,
+        password: hashedPassword,
+    });
 
-	const account = await AccountModel.create({
-		userId: newUser._id,
-		balance: Math.round(Math.random() * 10000) + 1,
-	});
+    const account = await AccountModel.create({
+        userId: newUser._id,
+        balance: Math.round(Math.random() * 10000) + 1,
+    });
 
-	res.status(201).send({ msg: "User saved successfully", userId: newUser._id });
+    res.status(201).send({
+        msg: "User created successfully",
+        userId: newUser._id,
+    });
 });
 
 // 2. Sign in
@@ -71,25 +74,27 @@ router.post("/signup", async (req, res) => {
 // }
 
 const signinBody = z.object({
-	username: z.string().email(),
-	password: z.string(),
+    username: z.string().email(),
+    password: z.string(),
 });
 router.post("/signin", async (req, res) => {
-	const { success } = signinBody.safeParse(req.body);
-	if (!success) return res.status(400).send({ msg: "Invalid Data" });
+    const { success } = signinBody.safeParse(req.body);
+    if (!success) return res.status(400).send({ msg: "Invalid Data" });
 
-	const { username, password } = req.body;
-	const user = await UserModel.findOne({ username });
+    const { username, password } = req.body;
+    const user = await UserModel.findOne({ username });
 
-	if (!user) return res.status(404).send({ msg: "User not found" });
+    if (!user) return res.status(404).send({ msg: "User not found" });
 
-	if (!bcrypt.compareSync(password, user.password)) {
-		return res.status(401).send({ msg: "Invalid password" });
-	}
+    if (!bcrypt.compareSync(password, user.password)) {
+        return res.status(401).send({ msg: "Invalid password" });
+    }
 
-	const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1d" });
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
+        expiresIn: "1d",
+    });
 
-	res.status(200).send({ msg: "User logged in successfully", token: token });
+    res.status(200).send({ msg: "User logged in successfully", token: token });
 });
 
 // Method: PUT
@@ -101,29 +106,29 @@ router.post("/signin", async (req, res) => {
 // 	lastName: "updated_first_name",
 // }
 const updateBody = z.object({
-	password: z.string().optional(),
-	firstName: z.string().optional(),
-	lastName: z.string().optional(),
+    password: z.string().optional(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
 });
 router.put("/", authMiddleware, async (req, res) => {
-	const { success } = updateBody.safeParse(req.body);
-	if (!success) return res.status(400).send({ msg: "Invalid Data" });
+    const { success } = updateBody.safeParse(req.body);
+    if (!success) return res.status(400).send({ msg: "Invalid Data" });
 
-	if (req.body.password) {
-		const hashedPassword = bcrypt.hashSync(req.body.password, saltRounds);
-		req.body.password = hashedPassword;
-	}
-	const userId = req.userId;
-	try {
-		await UserModel.findByIdAndUpdate(userId, req.body);
-		res.json({
-			message: "Updated successfully",
-		});
-	} catch (error) {
-		res.status(500).send({
-			message: error.message,
-		});
-	}
+    if (req.body.password) {
+        const hashedPassword = bcrypt.hashSync(req.body.password, saltRounds);
+        req.body.password = hashedPassword;
+    }
+    const userId = req.userId;
+    try {
+        await UserModel.findByIdAndUpdate(userId, req.body);
+        res.json({
+            message: "Updated successfully",
+        });
+    } catch (error) {
+        res.status(500).send({
+            message: error.message,
+        });
+    }
 });
 
 // Method: GET
@@ -140,22 +145,22 @@ router.put("/", authMiddleware, async (req, res) => {
 // }
 
 router.get("/bulk", async (req, res) => {
-	const filter = req.query.filter || " ";
-	const users = await UserModel.find({
-		$or: [
-			{ firstName: { $regex: filter, $options: "i" } },
-			{ lastName: { $regex: filter, $options: "i" } },
-		],
-	});
-	res.send({
-		user: users.map((user) => {
-			return {
-				username: user.username,
-				firstName: user.firstName,
-				lastName: user.lastName,
-				_id: user._id,
-			};
-		}),
-	});
+    const filter = req.query.filter || " ";
+    const users = await UserModel.find({
+        $or: [
+            { firstName: { $regex: filter, $options: "i" } },
+            { lastName: { $regex: filter, $options: "i" } },
+        ],
+    });
+    res.send({
+        user: users.map((user) => {
+            return {
+                username: user.username,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                _id: user._id,
+            };
+        }),
+    });
 });
 module.exports = router;

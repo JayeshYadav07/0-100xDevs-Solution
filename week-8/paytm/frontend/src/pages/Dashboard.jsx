@@ -1,3 +1,5 @@
+import Cookies from "js-cookie";
 export default function Dashboard() {
-  return <div>Dashboard</div>;
+    if (Cookies.get("token"));
+    return <div>Dashboard</div>;
 }
