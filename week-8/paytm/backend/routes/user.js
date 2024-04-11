@@ -93,8 +93,10 @@ router.post("/signin", async (req, res) => {
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
         expiresIn: "1d",
     });
-
-    res.status(200).send({ msg: "User logged in successfully", token: token });
+    res.status(200).send({
+        msg: "User logged in successfully",
+        user: { firstName: user.firstName, token },
+    });
 });
 
 // Method: PUT

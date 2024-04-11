@@ -13,7 +13,9 @@ export default function Signin() {
             .post("http://localhost:8080/api/v1/user/signin", { ...data })
             .then((response) => {
                 alert(response.data.msg);
-                Cookies.set("token", response.data.token, { expires: 7 });
+                console.log(response.data.user);
+                Cookies.set("token", response.data.user.token);
+                Cookies.set("firstName", response.data.user.firstName);
                 window.location.href = "/dashboard";
             })
             .catch((error) => {
