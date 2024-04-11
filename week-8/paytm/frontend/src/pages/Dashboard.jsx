@@ -1,13 +1,14 @@
 import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
+import { FiLogOut } from "react-icons/fi";
+
 export default function Dashboard() {
-    if (!Cookies.get("token")) {
-        alert("Login first");
-        window.location.href = "/signin";
-    }
     let [balance, setBalance] = useState(0);
     let [users, setUsers] = useState([]);
+    let [filter, setFilter] = useState("");
+
     useEffect(() => {
         axios
             .get("http://localhost:8080/api/v1/account/balance", {
@@ -23,23 +24,25 @@ export default function Dashboard() {
             });
     }, [balance]);
 
-    function handleChange(e) {
-        let filterValue = e.target.value;
+    useEffect(() => {
         axios
-            .get(
-                `http://localhost:8080/api/v1/user/bulk?filter=${filterValue}`,
-                {
-                    headers: {
-                        Authorization: "Bearer " + Cookies.get("token"),
-                    },
-                }
-            )
+            .get(`http://localhost:8080/api/v1/user/bulk?filter=${filter}`, {
+                headers: {
+                    Authorization: "Bearer " + Cookies.get("token"),
+                },
+            })
             .then((response) => {
                 setUsers(response.data.user);
             })
             .catch((error) => {
                 console.error("Error fetching data:", error);
             });
+    }, [filter]);
+
+    if (!Cookies.get("token")) {
+        alert("Login first");
+        window.location.href = "/signin";
+        return;
     }
     return (
         <div className="p-4">
@@ -49,7 +52,18 @@ export default function Dashboard() {
                     <p className="text-xl font-bold ">
                         Hello, {Cookies.get("firstName")}
                     </p>
-                    <p className="rounded-full bg-gray-300 py-1.5 px-3">U</p>
+                    <p
+                        onClick={() => {
+                            if (!confirm("Are u sure!")) {
+                                return;
+                            }
+                            Cookies.remove("token");
+                            window.location.href = "/signin";
+                        }}
+                        className="rounded-full bg-gray-200 text-blue-800 py-3 px-3 cursor-pointer"
+                    >
+                        <FiLogOut />
+                    </p>
                 </div>
             </div>
             <hr />
@@ -63,7 +77,10 @@ export default function Dashboard() {
                     type="text"
                     placeholder="Search users..."
                     className="border-2 border-gray-300 p-1 rounded w-full my-4"
-                    onChange={handleChange}
+                    value={filter}
+                    onChange={(e) => {
+                        setFilter(e.target.value);
+                    }}
                 />
                 <div className="userList">
                     {users.map((user) => {
@@ -77,12 +94,17 @@ export default function Dashboard() {
                                         {user.firstName[0]}
                                     </p>
                                     <p className="text-xl font-bold ml-3">
-                                        {user.firstName}
+                                        {user.firstName + " " + user.lastName}
                                     </p>
                                 </div>
-                                <button className="border p-2 rounded mt-3 bg-black text-white">
+                                <Link
+                                    to={`/send?name=${
+                                        user.firstName + " " + user.lastName
+                                    }&id=${user._id}`}
+                                    className="border p-2 rounded mt-3 bg-black text-white"
+                                >
                                     Send Money
-                                </button>
+                                </Link>
                             </div>
                         );
                     })}

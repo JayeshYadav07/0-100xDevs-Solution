@@ -146,23 +146,35 @@ router.put("/", authMiddleware, async (req, res) => {
 // 	}]
 // }
 
-router.get("/bulk", async (req, res) => {
-    const filter = req.query.filter || " ";
-    const users = await UserModel.find({
-        $or: [
-            { firstName: { $regex: filter, $options: "i" } },
-            { lastName: { $regex: filter, $options: "i" } },
-        ],
-    });
-    res.send({
-        user: users.map((user) => {
-            return {
-                username: user.username,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                _id: user._id,
+router.get("/bulk", authMiddleware, async (req, res) => {
+    try {
+        const filter = req.query.filter;
+        if (filter) {
+            query = {
+                _id: { $ne: req.userId },
+                $or: [
+                    { firstName: { $regex: filter, $options: "i" } },
+                    { lastName: { $regex: filter, $options: "i" } },
+                ],
             };
-        }),
-    });
+        } else {
+            query = { _id: { $ne: req.userId } };
+        }
+        const users = await UserModel.find(query).limit(5);
+        res.send({
+            user: users.map((user) => {
+                return {
+                    username: user.username,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    _id: user._id,
+                };
+            }),
+        });
+    } catch (error) {
+        res.send({
+            msg: "Something Went Wrong... ",
+        });
+    }
 });
 module.exports = router;
