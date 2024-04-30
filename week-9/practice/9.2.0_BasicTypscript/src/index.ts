@@ -109,3 +109,28 @@ const emp1 = new Employee("Jay", 22);
 emp1.speak("Hello to World from class");
 
 // In summary, choose types for flexibility and advanced type features, and use interfaces for object shapes, contracts, and class implementations, ensuring a consistent and readable codebase.
+
+// Enums allow a developer to define a set of named constants
+
+enum ResponseStatusCode {
+    Success = 200,
+    NotFound = 404,
+    ServerError = 500,
+}
+
+function resolve(Status: ResponseStatusCode): void {
+    console.log(`Response code is : ${Status}`);
+}
+
+resolve(ResponseStatusCode.Success);
+resolve(ResponseStatusCode.NotFound);
+// resolve(Anything);   // gives error
+
+// Generics
+// In languages like C# and Java, one of the main tools in the toolbox for creating reusable components is generics, that is, being able to create a component that can work over a variety of types rather than a single one. This allows users to consume these components and use their own types.
+
+function echo<T>(agr: T) {
+    console.log(agr);
+}
+echo<string>("Jayesh");
+echo<number>(12);
