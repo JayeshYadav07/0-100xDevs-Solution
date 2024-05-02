@@ -32,11 +32,11 @@ async function createTable() {
 async function insertValue() {
     const client = await getClient();
     try {
-        const createTestTable = `
+        const insertTestTable = `
             INSERT INTO Test (name,age)
             VALUES ('Jayesh',22);
         `;
-        const res = await client.query(createTestTable);
+        const res = await client.query(insertTestTable);
         console.log("Value Inserted Successful!");
     } catch (error) {
         console.log(error.message);
@@ -44,7 +44,22 @@ async function insertValue() {
         await client.end();
     }
 }
-
+async function updateTable() {
+    const client = await getClient();
+    try {
+        const updateTestTable = `
+            UPDATE TEST
+            SET age = 20
+            WHERE name = 'Jayesh';
+        `;
+        const res = await client.query(updateTestTable);
+        console.log("Table Updated Successful!");
+    } catch (error) {
+        console.log(error.message);
+    } finally {
+        await client.end();
+    }
+}
 async function deleteTable() {
     const client = await getClient();
     try {
@@ -61,4 +76,5 @@ async function deleteTable() {
 }
 // createTable();
 // insertValue();
-deleteTable();
+// updateTable();
+// deleteTable();
