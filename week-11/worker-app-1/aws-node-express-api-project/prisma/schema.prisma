@@ -12,3 +12,18 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model user {
+  id       Int    @id @default(autoincrement())
+  usernmae String
+  email    String @unique
+  password String
+  posts    post[]
+}
+
+model post {
+  id     Int    @id @default(autoincrement())
+  title  String
+  userId Int
+  user   user   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
