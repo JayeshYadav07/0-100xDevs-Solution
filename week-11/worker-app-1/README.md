@@ -109,3 +109,34 @@ After installation, you can start local emulation with:
 ```
 serverless offline
 ```
+
+# How to setup prisma
+
+Add dependencies
+
+```js
+npm install prisma --save-dev
+```
+
+Initialize a fresh prisma project
+
+```js
+npx prisma init
+```
+
+# Prisma
+
+we have to perform this step whenever we do changes in schema of prisma
+
+Migration
+
+```js
+npx prisma migrate dev --name relationship
+```
+
+Generate Client
+
+```js
+npx prisma generate
+```
+
