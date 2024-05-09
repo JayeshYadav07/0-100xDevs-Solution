@@ -216,3 +216,15 @@ model Option {
 ```
 
 </details>
+
+---
+
+### Error :
+
+```
+PrismaClientValidationError: Invalid client engine type, please use `library`or`binary`
+```
+
+Try This
+
+![img](./error.png)
