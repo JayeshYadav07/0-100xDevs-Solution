@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "library"
 }
 
 datasource db {
@@ -13,35 +14,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Users {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique
-  password String
-  fname    String
-  lname    String
-  Survey   Surveys[]
-}
-
-model Surveys {
+model surveys {
   id        Int         @id @default(autoincrement())
   title     String
-  userId    Int
-  Users     Users       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Questions Questions[]
+  questions questions[]
 }
 
-model Questions {
+model questions {
   id       Int       @id @default(autoincrement())
   text     String
   surveyId Int
-  Surveys  Surveys   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  Options  Options[]
+  surveys  surveys   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  Options  options[]
 }
 
-model Options {
+model options {
   id         Int       @id @default(autoincrement())
   text       String
   vote       Int       @default(0)
   questionId Int
-  Questions  Questions @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questions  questions @relation(fields: [questionId], references: [id], onDelete: Cascade)
 }
