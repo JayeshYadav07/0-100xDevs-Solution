@@ -95,6 +95,12 @@ npx prisma init
 Configure Database Connection
 In the schema.prisma file, update env("DATABASE_URL") with your actual PostgreSQL database connection URL.
 
+Apply migrations
+
+```
+npx prisma migrate dev --name  <name for you migration>
+```
+
 Generate Prisma Client
 
 ```
@@ -102,12 +108,6 @@ npx prisma generate
 ```
 
 Now you can use prisma client in your code
-
-Apply migrations
-
-```
-npx prisma migrate dev --name  <name for you migration>
-```
 
 Create an Express App
 Implement CRUD Operations
