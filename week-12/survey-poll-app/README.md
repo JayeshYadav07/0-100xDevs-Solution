@@ -109,6 +109,26 @@ npx prisma generate
 
 Now you can use prisma client in your code
 
+# Watching file changes
+
+```
+npm i -D nodemon ts-node
+```
+
+update the scripts in the `package.json` file as follows:
+
+```js
+{
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts"
+  }
+}
+```
+
+Finally, return to the terminal and execute `npm run dev` to initiate the development server.
+
 Create an Express App
 Implement CRUD Operations
 
