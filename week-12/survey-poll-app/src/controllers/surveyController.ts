@@ -30,40 +30,61 @@ const createSchema = z.object({
     ),
 });
 
-type question = {
+type Question = {
     text: string;
-    options: option[];
+    options: Option[];
 };
-type option = {
+type Option = {
     text: string;
 };
 export async function create(req: Request, res: Response) {
-    const validate = createSchema.safeParse(req.body);
-    if (!validate.success) {
-        return res.status(422).json({ msg: validate.error });
-    }
-    const survey = await prisma.surveys.create({
-        data: {
-            title: req.body.title,
-        },
-    });
-    req.body.questions.forEach(async (question: question) => {
-        const qtn = await prisma.questions.create({
+    try {
+        const validate = createSchema.safeParse(req.body);
+        if (!validate.success) {
+            return res.status(422).json({ msg: validate.error });
+        }
+        const survey = await prisma.surveys.create({
             data: {
-                text: question.text,
-                surveyId: survey.id,
+                title: req.body.title,
             },
         });
-        question.options.forEach(async (option: option) => {
-            const opt = await prisma.options.create({
-                data: {
-                    text: option.text,
-                    questionId: qtn.id,
-                },
-            });
+
+        // Create questions and options
+
+        const questionsPromises = req.body.questions.map(
+            (question: Question) => {
+                return prisma.questions.create({
+                    data: {
+                        text: question.text,
+                        surveyId: survey.id,
+                    },
+                });
+            }
+        );
+        const questionsData = await Promise.all(questionsPromises);
+
+        const optionsPromises = req.body.questions.flatMap(
+            (question: Question, index: number) => {
+                return question.options.map((option: Option) => {
+                    return prisma.options.create({
+                        data: {
+                            text: option.text,
+                            questionId: questionsData[index].id,
+                        },
+                    });
+                });
+            }
+        );
+        const optionsData = await Promise.all(optionsPromises);
+        res.status(201).json({
+            msg: "Survey Created",
+            questionsData,
+            optionsData,
         });
-    });
-    res.send("Survey Created");
+    } catch (error) {
+        console.error("Error creating survey:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 }
 export function update(req: Request, res: Response) {
     res.send("Survey Updated!");
