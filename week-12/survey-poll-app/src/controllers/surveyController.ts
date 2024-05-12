@@ -90,13 +90,18 @@ export function update(req: Request, res: Response) {
     res.send("Survey Updated!");
 }
 export async function remove(req: Request, res: Response) {
-    const id = parseInt(req.params.id);
-    const survey = await prisma.surveys.delete({
-        where: {
-            id,
-        },
-    });
-    res.send({ msg: "Survey Removed!", survey });
+    try {
+        const id = parseInt(req.params.id);
+        const survey = await prisma.surveys.delete({
+            where: {
+                id,
+            },
+        });
+        res.send({ msg: "Survey Removed!", survey });
+    } catch (error) {
+        console.error("Error creating survey:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 }
 
 export default {
