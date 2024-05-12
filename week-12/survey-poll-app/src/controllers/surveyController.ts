@@ -89,8 +89,14 @@ export async function create(req: Request, res: Response) {
 export function update(req: Request, res: Response) {
     res.send("Survey Updated!");
 }
-export function remove(req: Request, res: Response) {
-    res.send("Survey Removed!");
+export async function remove(req: Request, res: Response) {
+    const id = parseInt(req.params.id);
+    const survey = await prisma.surveys.delete({
+        where: {
+            id,
+        },
+    });
+    res.send({ msg: "Survey Removed!", survey });
 }
 
 export default {
