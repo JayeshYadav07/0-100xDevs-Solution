@@ -38,44 +38,49 @@ type Option = {
     text: string;
 };
 export async function create(req: Request, res: Response) {
+    let questionsData: any;
+    let optionsData: any;
+
     try {
         const validate = createSchema.safeParse(req.body);
         if (!validate.success) {
             return res.status(422).json({ msg: validate.error });
         }
-        const survey = await prisma.surveys.create({
-            data: {
-                title: req.body.title,
-            },
-        });
 
-        // Create questions and options
+        await prisma.$transaction(async (prisma) => {
+            const survey = await prisma.surveys.create({
+                data: {
+                    title: req.body.title,
+                },
+            });
 
-        const questionsPromises = req.body.questions.map(
-            (question: Question) => {
-                return prisma.questions.create({
-                    data: {
-                        text: question.text,
-                        surveyId: survey.id,
-                    },
-                });
-            }
-        );
-        const questionsData = await Promise.all(questionsPromises);
-
-        const optionsPromises = req.body.questions.flatMap(
-            (question: Question, index: number) => {
-                return question.options.map((option: Option) => {
-                    return prisma.options.create({
+            const questionsPromises = req.body.questions.map(
+                (question: Question) => {
+                    return prisma.questions.create({
                         data: {
-                            text: option.text,
-                            questionId: questionsData[index].id,
+                            text: question.text,
+                            surveyId: survey.id,
                         },
                     });
-                });
-            }
-        );
-        const optionsData = await Promise.all(optionsPromises);
+                }
+            );
+            questionsData = await Promise.all(questionsPromises);
+
+            const optionsPromises = req.body.questions.flatMap(
+                (question: Question, index: number) => {
+                    return question.options.map((option: Option) => {
+                        return prisma.options.create({
+                            data: {
+                                text: option.text,
+                                questionId: questionsData[index].id,
+                            },
+                        });
+                    });
+                }
+            );
+            optionsData = await Promise.all(optionsPromises);
+        });
+
         res.status(201).json({
             msg: "Survey Created",
             questionsData,
@@ -84,6 +89,8 @@ export async function create(req: Request, res: Response) {
     } catch (error) {
         console.error("Error creating survey:", error);
         res.status(500).json({ error: "Internal Server Error" });
+    } finally {
+        await prisma.$disconnect(); // Disconnect from Prisma client
     }
 }
 export function update(req: Request, res: Response) {
